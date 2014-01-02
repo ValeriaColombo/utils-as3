@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="vale.utils.dictionary.DictionaryDefinition"/>
+    <classEntry path="vale.utils.sets.MySet"/>
+    <classEntry path="vale.utils.sets.MyRandomSet"/>
+    <classEntry path="vale.utils.DummySpriteButton"/>
+    <classEntry path="vale.utils.TextFieldUtils"/>
+    <classEntry path="keyboards.MyKeyboard"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>
