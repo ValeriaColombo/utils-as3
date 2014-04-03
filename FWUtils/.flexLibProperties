@@ -10,6 +10,7 @@
     <classEntry path="vale.utils.images.ImageUtils"/>
     <classEntry path="vale.utils.crypt.Simplecrypt"/>
     <classEntry path="vale.utils.crypt.Base64"/>
+    <classEntry path="vale.utils.ArrayUtils"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
