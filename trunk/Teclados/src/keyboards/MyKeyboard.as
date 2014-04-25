@@ -10,6 +10,7 @@ package keyboards
 	import flash.geom.ColorTransform;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
+	import flash.utils.setTimeout;
 
 	// ========================================================================
 	
@@ -83,6 +84,7 @@ package keyboards
 		// --------------------------------------------------------------------
 		private function init(e:Event=null):void
 		{
+			trace("caca")
 			if(e != null) removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			if(uses_real_keyboard)
@@ -90,6 +92,7 @@ package keyboards
 			
 			for (var i = 0; i < mc_teclado.numChildren; i++)
 			{
+				MovieClip(mc_teclado.getChildAt(i)).gotoAndStop(1);
 				mc_teclado.getChildAt(i).addEventListener(MouseEvent.CLICK, clickTecla);
 			}
 		}
@@ -143,10 +146,25 @@ package keyboards
 			throw new Error("Must override");
 		}
 		
+		var tt;
 		// --------------------------------------------------------------------
 		private function clickTecla(e:MouseEvent)
 		{
+			try
+			{
+				e.currentTarget.gotoAndStop("down");
+				tt = e.currentTarget;
+				setTimeout(UpTeclaCliqueada, 10);
+			}
+			catch(error){}
+			
 			ApretarTecla(e.currentTarget.name);
+		}
+		
+		// --------------------------------------------------------------------
+		private function UpTeclaCliqueada()
+		{
+			tt.gotoAndStop(1);
 		}
 		
 		// --------------------------------------------------------------------
