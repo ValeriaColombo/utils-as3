@@ -21,7 +21,7 @@ package keyboards
 		// ====================================================================
 		
 		/**
-		 *	@param _lang puede ser "ES"(MyKeyboard.LANG_ESPANOL), "EN"(MyKeyboard.LANG_ENGLISH) o "PT"(MyKeyboard.LANG_PORTUGUES).
+		 *	@param _lang puede ser "ES"(MyKeyboard.LANG_ESPANOL), "EN"(MyKeyboard.LANG_ENGLISH) o "BR"(MyKeyboard.LANG_PORTUGUES).
 		 *	@param _uses_real_keyboard Si se puede usar o no el teclado fisico (solo letras y numeros).
 		 */
 		// --------------------------------------------------------------------

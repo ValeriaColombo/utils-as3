@@ -19,7 +19,7 @@ package keyboards
 		// ====================================================================
 		public static var LANG_ESPANOL   : String = "ES";
 		public static var LANG_ENGLISH   : String = "EN";
-		public static var LANG_PORTUGUES : String = "PT";
+		public static var LANG_PORTUGUES : String = "BR";
 		// ====================================================================
 		public static var WRITE : String = "MyKeyboard_Write";
 		public static var CHAR_KEY : String = "MyKeyboard_CharKey";
@@ -84,7 +84,6 @@ package keyboards
 		// --------------------------------------------------------------------
 		private function init(e:Event=null):void
 		{
-			trace("caca")
 			if(e != null) removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			if(uses_real_keyboard)
