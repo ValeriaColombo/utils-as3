@@ -128,7 +128,7 @@ package keyboards
 				min_width = text_field.width;
 				
 				text_field.maxChars = max_chars;
-				text_field.autoSize = TextFieldAutoSize.LEFT;
+//				text_field.autoSize = TextFieldAutoSize.LEFT;
 			
 				if(_delete_field)
 				{
