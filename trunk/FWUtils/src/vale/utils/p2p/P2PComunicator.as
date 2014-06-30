@@ -1,9 +1,12 @@
 package vale.utils.p2p
 {
 	// ========================================================================
+	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.GroupSpecifier;
 	import flash.net.NetConnection;
 	import flash.net.NetGroup;
@@ -25,9 +28,31 @@ package vale.utils.p2p
 		{
 			netConn = new NetConnection();
 			netConn.addEventListener(NetStatusEvent.NET_STATUS, netHandler);
+			netConn.addEventListener(SecurityErrorEvent.SECURITY_ERROR, SecurityErrorHandler);
+			netConn.addEventListener(AsyncErrorEvent.ASYNC_ERROR, AsyncErrorHandler);
+			netConn.addEventListener(IOErrorEvent.IO_ERROR, IOErrorHandler);
 			netConn.connect("rtmfp:");
 		}
 		
+		// --------------------------------------------------------------------
+		protected function SecurityErrorHandler(event:SecurityErrorEvent):void
+		{
+			throw new Error("SecurityErrorHandler: " + event.text);
+		}
+		
+		// --------------------------------------------------------------------
+		protected function AsyncErrorHandler(event:AsyncErrorEvent):void
+		{
+			throw new Error("AsyncErrorHandler: " + event.text);
+		}
+		
+		// --------------------------------------------------------------------
+		protected function IOErrorHandler(event:IOErrorEvent):void
+		{
+			throw new Error("IOErrorHandler: " + event.text);
+		}
+
+
 		// --------------------------------------------------------------------
 		private function netHandler(event:NetStatusEvent):void
 		{
