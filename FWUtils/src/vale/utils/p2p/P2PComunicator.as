@@ -90,7 +90,7 @@ package vale.utils.p2p
 		}
 		
 		// --------------------------------------------------------------------
-		public function SendMessage(msg : String, data : Object)
+		public function SendMessage(msg : String, data : Object):void
 		{
 			var obj : Object = new Object();
 			obj.msg = msg;
@@ -100,7 +100,7 @@ package vale.utils.p2p
 		}
 		
 		// --------------------------------------------------------------------
-		protected function ReceiveMessage(obj : Object)
+		protected function ReceiveMessage(obj : Object):void
 		{
 			var msg : String = obj.msg;
 			var data : Object = obj.data;
