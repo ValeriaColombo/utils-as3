@@ -92,11 +92,15 @@ package vale.utils.p2p
 		// --------------------------------------------------------------------
 		public function SendMessage(msg : String, data : Object):void
 		{
-			var obj : Object = new Object();
-			obj.msg = msg;
-			obj.data = data;
-			
-			group.sendToAllNeighbors(obj);
+			try
+			{
+				var obj : Object = new Object();
+				obj.msg = msg;
+				obj.data = data;
+				
+				group.sendToAllNeighbors(obj);
+			}
+			catch(e){}
 		}
 		
 		// --------------------------------------------------------------------

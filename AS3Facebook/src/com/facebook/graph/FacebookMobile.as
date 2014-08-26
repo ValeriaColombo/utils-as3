@@ -42,12 +42,20 @@ package com.facebook.graph {
 	import com.facebook.graph.windows.MobileLoginWindow;
 	
 	import flash.display.Stage;
+	import flash.events.ErrorEvent;
 	import flash.events.Event;
-	import flash.geom.Rectangle;
+	import flash.filesystem.File;
 	import flash.media.StageWebView;
 	import flash.net.SharedObject;
+	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
 	import flash.utils.setTimeout;
+	
+	import org.osmf.net.NetLoader;
+	
+	import sia_facebook.FacebookDebugLog;
+	import sia_facebook.FacebookSessionManager;
 
 	/**
 	 * For use in Mobile, to access the Facebook Graph API from the Mobile phone.
@@ -460,6 +468,7 @@ package com.facebook.graph {
 								accessToken:String = null
 		):void {
 			
+//			loginCallback = null;
 			initCallback = callback;
 
 			this.applicationId = applicationId;
@@ -490,7 +499,7 @@ package com.facebook.graph {
 		 *
 		 */
 		protected function handleUserLoad(result:Object, error:Object):void {
-			 if (result && session) 
+			 if (result && session)
 			 {
 				session.uid = result.id;
 				session.user = result;
@@ -606,16 +615,50 @@ package com.facebook.graph {
 		{
 			this.logoutCallback = callback;
 			
+			retrys_web = 0;
 			url_logout = "https://www.facebook.com/logout.php?next="+appOrigin+"&access_token="+accessToken;
-			facebookWebView = new StageWebView();
-			facebookWebView.loadURL(url_logout);
-			FacebookSessionManager.Instance.addEventListener(Event.ENTER_FRAME, veryfyFormChange);
+			LlamadaAlLogoutWeb();
 			
 			var so:SharedObject = SharedObject.getLocal(SO_NAME);
 			so.clear();
 			so.flush();
 
 			session = null;
+		}
+		
+		// --------------------------------------------------------------------
+		private function LlamadaAlLogoutWeb():void 
+		{
+			facebookWebView = new StageWebView();
+			facebookWebView.addEventListener(flash.events.ErrorEvent.ERROR, FBLogoutLoadError);
+			facebookWebView.addEventListener(Event.COMPLETE, FBLogoutLoadSuccess);
+			facebookWebView.loadURL(url_logout);
+			FacebookSessionManager.Instance.addEventListener(Event.ENTER_FRAME, veryfyFormChange);
+
+		}
+		
+		private var retrys_web = 0;
+		// --------------------------------------------------------------------
+		private function FBLogoutLoadError(e):void 
+		{
+			//Si bien esto parece un error... cuando entra por aca es porque deslogueo, si llame al logout sin usuaro logueado sale por el success... si habia usuario logueado siempre pasa por aca...
+			trace("FBLogoutLoadError")
+			retrys_web++;
+			if(retrys_web < 5)
+			{
+				trace("retry web");
+				setTimeout(LlamadaAlLogoutWeb,5);
+			}
+			else
+			{
+				HandleFBLogoutWeb(false);
+			}
+		}
+		
+		// --------------------------------------------------------------------
+		private function FBLogoutLoadSuccess(e):void 
+		{
+			trace("FBLogoutLoadSuccess")
 		}
 		
 		// --------------------------------------------------------------------
@@ -630,15 +673,31 @@ package com.facebook.graph {
 				}
 				else
 				{
-					FacebookSessionManager.Instance.removeEventListener(Event.ENTER_FRAME, veryfyFormChange);
-					
-					facebookWebView.dispose();
-					facebookWebView = null;
-					
-					url_logout = "";
-					
-					handleLogout("", null);
+					HandleFBLogoutWeb(true);
 				}
+			}
+		}
+		
+		private function HandleFBLogoutWeb(success : Boolean)
+		{
+			FacebookSessionManager.Instance.removeEventListener(Event.ENTER_FRAME, veryfyFormChange);
+			
+			try
+			{
+				if(webView != null)
+					webView.reload();
+			}
+			catch(e){}
+			
+			facebookWebView.dispose();
+			facebookWebView = null;
+			
+			url_logout = "";
+			
+			if (logoutCallback != null)
+			{
+				logoutCallback(success);
+				logoutCallback = null;
 			}
 		}
 		
@@ -650,7 +709,26 @@ package com.facebook.graph {
 		{
 			this.logoutCallback = callback;
 			
-			//clears cookie for mobile.
+			////			
+			/*
+			var params:URLVariables = new URLVariables();
+			params.next = appOrigin;
+			params.access_token = FacebookDesktop.getSession().accessToken;
+			
+			var req:URLRequest = new URLRequest("https://www.facebook.com/logout.php");
+			req.method = URLRequestMethod.GET;
+			req.data = params;
+			
+			var netLoader:NetLoader = new NetLoader();
+			netLoader.load(req);
+			
+			FacebookDesktop.logout(handleLogout, appOrigin);
+			
+*/
+			/////
+			
+			
+			
 			var params:Object = {};
 			params.confirm = 1;
 			params.next = appOrigin;
@@ -658,12 +736,13 @@ package com.facebook.graph {
 			var req:FacebookRequest = new FacebookRequest();
 			
 			openRequests[req] = handleLogout;
-			req.call("https://www.facebook.com/logout.php?next="+appOrigin+"&access_token="+accessToken, "GET" , handleRequestLoad);
-//			req.call("https://m.facebook.com/logout.php", "GET" , handleRequestLoad, params);
+//			req.call("https://www.facebook.com/logout.php?next="+appOrigin+"&access_token="+accessToken, "GET" , handleRequestLoad);
+			req.call("https://m.facebook.com/logout.php", "GET" , handleRequestLoad, params);
 			
 			var so:SharedObject = SharedObject.getLocal(SO_NAME);
 			so.clear();
 			so.flush();
+
 			
 			session = null;
 		}
@@ -674,12 +753,11 @@ package com.facebook.graph {
 		 */
 		protected function handleLogout(result:Object, fail:Object):void 
 		{
-			//This is a specific case. Since we are hitting a different URL to 
-			//logout, we do not get a normal result/fail
 			FacebookDebugLog.Instance.Log("FacebookMobile.handleLogout(result = "+(result!=null)+", fail = "+ (fail!=null)+")");
+			
 			if (logoutCallback != null) 
 			{
-				logoutCallback(true);
+				logoutCallback(fail != null && fail != "");
 				logoutCallback = null;
 			}
 		}

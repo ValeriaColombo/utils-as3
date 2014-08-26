@@ -46,6 +46,7 @@ package com.facebook.graph.windows {
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	import sia_facebook.FacebookDebugLog;
 
 	/**
 	 * Displays a new NativeWindow that allows the current user to login to

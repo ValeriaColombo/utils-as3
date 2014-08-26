@@ -1,4 +1,4 @@
-package
+package sia_facebook
 {
 	// ========================================================================
 	import com.facebook.graph.FacebookMobile;
@@ -7,6 +7,7 @@ package
 	import flash.display.Sprite;
 	import flash.events.DataEvent;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	import flash.media.StageWebView;
@@ -129,10 +130,12 @@ package
 			{
 				virtualKeyboard = new IPadKeyboard(keyboard_lang, true);
 				SetEscaleAndPosition(virtualKeyboard, boundsKeyboard);
+				virtualKeyboard.ColorFondo(0xCCCCCC);
 			}
 
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, loadConfigsCompleteHandler);
+			loader.addEventListener(IOErrorEvent.IO_ERROR, loadConfigsErrorHandler);
 			loader.load(new URLRequest("http://games.siainteractive.com/frameworks/FBLoginConfigs.xml"));
 			
 			inBrowser = false;
@@ -151,11 +154,46 @@ package
 
 			connecting = new ConectandoConFbMC();
 			connecting.text.gotoAndStop(lang);
-//			SetEscaleAndPosition(connecting, new Rectangle(0,0,1080, 1920));
-			SetEscaleAndPosition(connecting, new Rectangle(0,0,stage.stageWidth, stage.stageHeight));
+			connecting.text.x = stage.stageWidth/2;
+			connecting.text.y = stage.stageHeight/2;
+			SetEscaleAndPosition(connecting.bkg, new Rectangle(0,0,stage.stageWidth, stage.stageHeight));
 			
 			FacebookMobile.manageSession = false;
 			FacebookMobile.init(appId, onInit);
+		}
+		
+		private var callbackReInit
+		public function ResetFBInstance(_callbackReInit):void 
+		{
+			if(blocker.parent != null) stage.removeChild(blocker);
+			if(helpText.parent != null) stage.removeChild(helpText);
+			if(virtualKeyboard && virtualKeyboard.parent != null) stage.removeChild(virtualKeyboard);
+			if(connecting.parent != null) stage.removeChild(connecting);
+			
+			try
+			{
+				if(facebookWebView != null)
+				{
+					facebookWebView.reload();
+					facebookWebView.dispose();
+					facebookWebView = null;	
+				}
+			}
+			catch(e:*){}
+			
+			try
+			{
+				if(closeBtn.parent != null)
+				{
+					stage.removeChild(closeBtn);
+					closeBtn.removeEventListener(MouseEvent.MOUSE_DOWN, onCloseWindow);
+				}
+			}
+			catch(e:*){}
+			
+			callbackReInit = _callbackReInit;
+			FacebookMobile.manageSession = false;
+			FacebookMobile.init(appId, onReInit, null);
 		}
 		
 		/**Abre la ventana de logueo a FB (antes de llamar a este método hay que hacer un Instance.Init() ).
@@ -217,43 +255,6 @@ package
 			if(connecting.parent != null) stage.addChild(connecting);
 		}
 		
-		/**Si hay algun usuario loguado, lo desloguea (antes de llamar a este método hay que hacer un Instance.Init() ).
-		 * @param callback_deslogueo función que llama al terminar de cerrar la sesion de usuario
-		 **/
-		// --------------------------------------------------------------------
-		public function FacebookLogoutAPI(callback_deslogueo : Function)
-		{
-			if(id_form_pass == 0 || id_form_user == 0)
-			{
-				throw new Error("Antes hay que llamar a Instance.Init(...)");
-				return;
-			}
-
-			FacebookDebugLog.Instance.Log("FacebookSessionManager.FacebookLogoutAPI");
-
-			stage.addChild(blocker);
-			
-			callbackLogout = callback_deslogueo;
-			FacebookMobile.logoutAPI(logoutHandler, appName);
-		}
-		
-		// --------------------------------------------------------------------
-		public function FacebookLogoutWEB(callback_deslogueo : Function)
-		{
-			if(id_form_pass == 0 || id_form_user == 0)
-			{
-				throw new Error("Antes hay que llamar a Instance.Init(...)");
-				return;
-			}
-			
-			FacebookDebugLog.Instance.Log("FacebookSessionManager.FacebookLogoutWEB");
-			
-			stage.addChild(blocker);
-			
-			callbackLogout = callback_deslogueo;
-			FacebookMobile.logoutWEB(logoutHandler2, appName);
-		}
-		
 		// --------------------------------------------------------------------
 		private function get UsaTecladoVirtual() : Boolean
 		{
@@ -261,7 +262,29 @@ package
 		}
 		
 		// --------------------------------------------------------------------
+		private function onReInit(success:Object, fail:Object) 
+		{ 
+			callbackReInit() 
+		}
+		
+		// --------------------------------------------------------------------
 		private function onInit(success:Object, fail:Object) {}
+		
+		
+		// --------------------------------------------------------------------
+		private function loadConfigsErrorHandler(event:Event)
+		{
+			trace("loadConfigsErrorHandler");
+			
+			id_form_pass = "13";
+			id_form_user = "12";
+			
+			if(readyCallback)
+			{
+				readyCallback();
+				readyCallback = null;
+			}
+		}
 		
 		// --------------------------------------------------------------------
 		private function loadConfigsCompleteHandler(event:Event)
@@ -516,6 +539,7 @@ package
 			{
 				if(facebookWebView != null)
 				{
+					facebookWebView.reload();
 					facebookWebView.dispose();
 					facebookWebView = null;	
 				}
@@ -531,16 +555,43 @@ package
 			
 		}
 		
+		/**Si hay algun usuario loguado, lo desloguea (antes de llamar a este método hay que hacer un Instance.Init() ).
+		 * @param callback_deslogueo función que llama al terminar de cerrar la sesion de usuario
+		 **/
 		// --------------------------------------------------------------------
-		private function logoutHandler2(value:Boolean):void
+		public function FacebookLogoutAPI(callback_deslogueo : Function)
 		{
-			if(blocker.parent != null) stage.removeChild(blocker);
-			setTimeout(Asd,100);
+			if(id_form_pass == 0 || id_form_user == 0)
+			{
+				throw new Error("Antes hay que llamar a Instance.Init(...)");
+				return;
+			}
+			
+			FacebookDebugLog.Instance.Log("FacebookSessionManager.FacebookLogoutAPI");
+			
+			stage.addChild(blocker);
+			
+			callbackLogout = callback_deslogueo;
+			FacebookMobile.logoutAPI(logoutHandler, appName);
 		}
 		
-		private function Asd()
+		private var retrys_logout;
+		// --------------------------------------------------------------------
+		public function FacebookLogoutWEB(callback_deslogueo : Function)
 		{
-			FacebookLogoutAPI(callbackLogout);
+			if(id_form_pass == 0 || id_form_user == 0)
+			{
+				throw new Error("Antes hay que llamar a Instance.Init(...)");
+				return;
+			}
+			
+			FacebookDebugLog.Instance.Log("FacebookSessionManager.FacebookLogoutWEB");
+			
+			stage.addChild(blocker);
+			
+			retrys_logout = 0;
+			callbackLogout = callback_deslogueo;
+			FacebookMobile.logoutWEB(logoutHandler, appName);
 		}
 		
 		// --------------------------------------------------------------------
@@ -548,13 +599,34 @@ package
 		{
 			FacebookDebugLog.Instance.Log("FacebookSessionManager.logoutHandler " + value);
 			
-			loggedin = false;
-
-			if(blocker.parent != null) stage.removeChild(blocker);
-			if(callbackLogout)
+			if(value)
 			{
-				callbackLogout();
-				callbackLogout = null;
+				loggedin = false;
+	
+				if(blocker.parent != null) stage.removeChild(blocker);
+				if(callbackLogout)
+				{
+					callbackLogout(true);
+					callbackLogout = null;
+				}
+			}
+			else
+			{
+				retrys_logout++;
+				if(retrys_logout < 5)
+				{
+					FacebookDebugLog.Instance.Log("FacebookSessionManager.logout retry");
+					FacebookMobile.logoutWEB(logoutHandler, appName);
+				}
+				else
+				{
+					if(blocker.parent != null) stage.removeChild(blocker);
+					if(callbackLogout)
+					{
+						callbackLogout(false);
+						callbackLogout = null;
+					}
+				}
 			}
 		}
 		

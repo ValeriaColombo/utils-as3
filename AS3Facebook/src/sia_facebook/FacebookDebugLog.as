@@ -1,4 +1,4 @@
-package
+package sia_facebook
 {
 	import flash.display.Sprite;
 	import flash.text.TextField;

@@ -39,6 +39,7 @@ package com.facebook.graph.net {
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	import sia_facebook.FacebookDebugLog;
 
     /**
     * Main class to send requests to the Facebook API.

@@ -1,0 +1,3 @@
+﻿package sia_facebook{	import flash.events.StatusEvent;	import flash.net.URLRequest;		import air.net.URLMonitor;
+		public class Utils 	{		static private var internetStatusCallback:Function = null;		static public function checkConnection(statusCallback:Function):void		{			internetStatusCallback = statusCallback;							var monitor:URLMonitor = new URLMonitor(new URLRequest("http://www.facebook.com/"));			monitor.addEventListener(StatusEvent.STATUS, connectionStatus);			monitor.start();		}				protected static function connectionStatus(e:StatusEvent):void
+		{			if(internetStatusCallback != null)				internetStatusCallback(e.target.available);		}	}}
