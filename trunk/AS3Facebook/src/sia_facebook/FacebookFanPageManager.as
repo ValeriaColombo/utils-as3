@@ -1,4 +1,4 @@
-package
+package sia_facebook
 {
 	// ========================================================================
 	import com.facebook.graph.FacebookMobile;
