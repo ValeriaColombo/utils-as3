@@ -15,5 +15,19 @@ package vale.utils
 			
 			return nuevo;
 		}
+		
+		// --------------------------------------------------------------------
+		public static function RemoveItem(arr : Array, it : Object) : Array
+		{
+			var nuevo : Array = [];
+			
+			for each(var item in arr)
+			{
+				if(item != it)
+					nuevo.push(item);
+			}
+			
+			return nuevo;
+		}
 	}
 }
