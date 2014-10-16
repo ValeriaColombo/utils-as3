@@ -10,6 +10,7 @@ package keyboards
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
+	import flash.utils.setTimeout;
 
 	// ========================================================================
 
@@ -21,7 +22,7 @@ package keyboards
 		// ====================================================================
 		private var shift : Boolean;
 		// ====================================================================
-		
+
 		/**
 		 *	@param _lang puede ser "ES"(MyKeyboard.LANG_ESPANOL), "EN"(MyKeyboard.LANG_ENGLISH) o "BR"(MyKeyboard.LANG_PORTUGUES).
 		 *	@param _uses_real_keyboard Si se puede usar o no el teclado fisico (solo letras y numeros).
@@ -36,14 +37,20 @@ package keyboards
 			else
 				ShowLetters();
 				
-			mc_teclado.lang.gotoAndStop(_lang);
 			addChild(mc_teclado);
 
 			shift = false;
 			CambiarSegunShift();
 			
 			super(_lang, _uses_real_keyboard);
-			mc_teclado.lang.gotoAndStop(_lang);
+			
+			mc_teclado.lang.gotoAndStop(lang);
+			setTimeout(Asd, 20);
+		}
+		
+		private function Asd()
+		{
+			mc_teclado.lang.gotoAndStop(lang);
 		}
 		
 		// --------------------------------------------------------------------
