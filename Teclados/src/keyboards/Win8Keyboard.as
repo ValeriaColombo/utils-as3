@@ -9,6 +9,7 @@ package keyboards
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.ui.Keyboard;
+	import flash.utils.setTimeout;
 
 	// ========================================================================
 
@@ -32,8 +33,14 @@ package keyboards
 			addChild(mc_teclado);
 			
 			super(_lang, _uses_real_keyboard);
+			setTimeout(Langggg, 200);
 		}
 		
+		private function Langggg()
+		{
+			mc_teclado.teclado.lang.gotoAndStop(lang);
+		}
+
 		// --------------------------------------------------------------------
 		protected override function onKeyboardDown(e:KeyboardEvent)
 		{
