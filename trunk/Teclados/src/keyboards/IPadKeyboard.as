@@ -32,6 +32,8 @@ package keyboards
 		{
 			mc_teclado = new mcTecladoiPad();
 			
+			super(_lang, _uses_real_keyboard);
+			
 			if(_numeric)
 				ShowNumeric();
 			else
@@ -42,10 +44,9 @@ package keyboards
 			shift = false;
 			CambiarSegunShift();
 			
-			super(_lang, _uses_real_keyboard);
 			
 			mc_teclado.lang.gotoAndStop(lang);
-			setTimeout(Asd, 20);
+			setTimeout(Asd, 200);
 		}
 		
 		private function Asd()
@@ -284,6 +285,7 @@ package keyboards
 		public function ShowLetters()
 		{
 			mc_teclado.gotoAndStop(1);
+			mc_teclado.lang.gotoAndStop(lang);
 		}
 	}
 }
